@@ -15,44 +15,57 @@ class InvoiceMerger:
     """PDF发票合并器"""
     
     # A4纸张尺寸（点，1点=1/72英寸）
-    A4_WIDTH = 595.27
-    A4_HEIGHT = 841.89
+    A4_WIDTH_PORTRAIT = 595.27   # 纵向宽度
+    A4_HEIGHT_PORTRAIT = 841.89  # 纵向高度
     
     def __init__(self, invoices_per_page: int = 6):
         """
         初始化合并器
         
         Args:
-            invoices_per_page: 每页A4纸排列的发票数量，默认6张（2行3列）
+            invoices_per_page: 每页A4纸排列的发票数量，默认6张（3行2列）
         """
         self.invoices_per_page = invoices_per_page
         self._calculate_layout()
     
     def _calculate_layout(self):
         """计算布局参数"""
-        # 根据每页发票数量计算行列数
+        # 根据每页发票数量计算行列数和页面方向
         if self.invoices_per_page == 6:
             self.rows = 3
             self.cols = 2
+            self.landscape = False  # 纵向
         elif self.invoices_per_page == 4:
             self.rows = 2
             self.cols = 2
+            self.landscape = True   # 横向
         elif self.invoices_per_page == 8:
             self.rows = 4
             self.cols = 2
+            self.landscape = False  # 纵向
         elif self.invoices_per_page == 2:
             self.rows = 2
             self.cols = 1
+            self.landscape = False  # 纵向
         else:
             # 默认尝试自动计算
             import math
             self.cols = int(math.sqrt(self.invoices_per_page))
             self.rows = (self.invoices_per_page + self.cols - 1) // self.cols
+            self.landscape = False
+        
+        # 设置页面尺寸
+        if self.landscape:
+            self.page_width = self.A4_HEIGHT_PORTRAIT   # 横向：宽度=纵向高度
+            self.page_height = self.A4_WIDTH_PORTRAIT   # 横向：高度=纵向宽度
+        else:
+            self.page_width = self.A4_WIDTH_PORTRAIT    # 纵向
+            self.page_height = self.A4_HEIGHT_PORTRAIT
         
         # 计算每个发票的尺寸（留出边距）
         margin = 10  # 边距（点）
-        self.invoice_width = (self.A4_WIDTH - margin * (self.cols + 1)) / self.cols
-        self.invoice_height = (self.A4_HEIGHT - margin * (self.rows + 1)) / self.rows
+        self.invoice_width = (self.page_width - margin * (self.cols + 1)) / self.cols
+        self.invoice_height = (self.page_height - margin * (self.rows + 1)) / self.rows
         self.margin = margin
     
     def merge_pdfs(self, pdf_files: List[Path], output_path: Path):
@@ -67,7 +80,8 @@ class InvoiceMerger:
             raise ValueError("没有找到PDF文件")
         
         print(f"找到 {len(pdf_files)} 个PDF文件")
-        print(f"每页排列 {self.invoices_per_page} 张发票 ({self.rows}行 x {self.cols}列)")
+        orientation = "横向" if self.landscape else "纵向"
+        print(f"每页排列 {self.invoices_per_page} 张发票 ({self.rows}行 x {self.cols}列, {orientation}A4)")
         
         # 收集所有PDF页面
         all_pages = []
@@ -127,9 +141,9 @@ class InvoiceMerger:
         if not pages:
             raise ValueError("页面列表为空")
         
-        # 创建空白A4页面
+        # 创建空白页面（根据布局选择纵向或横向）
         temp_writer = PdfWriter()
-        temp_writer.add_blank_page(width=self.A4_WIDTH, height=self.A4_HEIGHT)
+        temp_writer.add_blank_page(width=self.page_width, height=self.page_height)
         temp_pdf = BytesIO()
         temp_writer.write(temp_pdf)
         temp_pdf.seek(0)
@@ -156,7 +170,7 @@ class InvoiceMerger:
             x_left = self.margin + col * (self.invoice_width + self.margin)
             # 区域左下角的y坐标
             # row=0在最上方，row越大y越小
-            y_bottom = self.A4_HEIGHT - self.margin - (row + 1) * self.invoice_height - row * self.margin
+            y_bottom = self.page_height - self.margin - (row + 1) * self.invoice_height - row * self.margin
             
             # 获取原始页面尺寸
             page_width = float(page_copy.mediabox.width)
