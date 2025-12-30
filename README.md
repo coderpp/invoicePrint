@@ -110,6 +110,30 @@ uv run python build.py --clean
 dist\invoiceprint-windows-x64.exe C:\path\to\invoices -o output.pdf
 ```
 
+### 多平台自动打包（GitHub Actions）
+
+项目包含 GitHub Actions 工作流，支持自动打包多平台程序：
+
+**触发方式：**
+1. **推送标签**：推送 `v*` 格式的标签（如 `v1.0.0`）
+2. **手动触发**：在 GitHub 仓库的 Actions 页面手动运行
+
+**支持的平台：**
+- macOS ARM64 (Apple Silicon)
+- macOS x64 (Intel)
+- Linux x64
+- Windows x64
+
+**使用方法：**
+
+```bash
+# 创建并推送标签，触发自动打包和发布
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+打包完成后，可在 GitHub Releases 页面下载各平台的可执行文件。
+
 ## 注意事项
 
 - 每个PDF文件只使用第一页（如果PDF有多页）
@@ -120,11 +144,12 @@ dist\invoiceprint-windows-x64.exe C:\path\to\invoices -o output.pdf
 
 ```
 invoicePrint/
-├── main.py           # 主程序
-├── build.py          # 跨平台打包脚本
-├── pyproject.toml    # 项目配置和依赖
-├── .gitignore        # Git忽略文件
-└── README.md         # 说明文档
+├── main.py                       # 主程序
+├── build.py                      # 跨平台打包脚本
+├── pyproject.toml                # 项目配置和依赖
+├── .gitignore                    # Git忽略文件
+├── .github/workflows/build.yml   # GitHub Actions 多平台打包
+└── README.md                     # 说明文档
 ```
 
 ## 依赖库
