@@ -18,7 +18,7 @@ class InvoiceMerger:
     A4_WIDTH_PORTRAIT = 595.27   # 纵向宽度
     A4_HEIGHT_PORTRAIT = 841.89  # 纵向高度
     
-    def __init__(self, invoices_per_page: int = 6):
+    def __init__(self, invoices_per_page: int = 4):
         """
         初始化合并器
         
@@ -252,9 +252,9 @@ def main():
     parser.add_argument(
         "-n", "--number",
         type=int,
-        default=6,
+        default=4,
         choices=[2, 4, 6, 8],
-        help="每页A4纸排列的发票数量（默认: 6，可选: 2, 4, 6, 8）"
+        help="每页A4纸排列的发票数量（默认: 4，可选: 2, 4, 6, 8）"
     )
     
     args = parser.parse_args()
