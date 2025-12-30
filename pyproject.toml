@@ -6,3 +6,11 @@ requires-python = ">=3.12"
 dependencies = [
     "pypdf>=4.0.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pyinstaller>=6.0.0",
+]
+
+[project.scripts]
+invoiceprint = "main:main"

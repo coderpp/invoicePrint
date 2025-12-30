@@ -46,3 +46,8 @@ merged_invoices.pdf
 test/
 *.pdf
 
+# PyInstaller
+build/
+dist/
+*.spec
+

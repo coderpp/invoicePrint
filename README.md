@@ -75,6 +75,41 @@ uv run python main.py . -o invoices.pdf
 uv run python main.py ~/Documents/invoices -n 6 -r -o merged.pdf
 ```
 
+## 打包成可执行文件
+
+支持将程序打包成独立可执行文件，无需 Python 环境即可运行。
+
+### 安装打包依赖
+
+```bash
+uv sync --extra dev
+```
+
+### 执行打包
+
+```bash
+# 打包（自动检测平台和架构）
+uv run python build.py
+
+# 仅清理构建目录
+uv run python build.py --clean
+```
+
+打包后的文件位于 `dist/` 目录，文件名格式为：
+- macOS: `invoiceprint-macos-arm64` 或 `invoiceprint-macos-x64`
+- Windows: `invoiceprint-windows-x64.exe`
+- Linux: `invoiceprint-linux-x64` 或 `invoiceprint-linux-arm64`
+
+### 使用打包后的程序
+
+```bash
+# macOS/Linux
+./dist/invoiceprint-macos-arm64 /path/to/invoices -o output.pdf
+
+# Windows
+dist\invoiceprint-windows-x64.exe C:\path\to\invoices -o output.pdf
+```
+
 ## 注意事项
 
 - 每个PDF文件只使用第一页（如果PDF有多页）
@@ -86,6 +121,7 @@ uv run python main.py ~/Documents/invoices -n 6 -r -o merged.pdf
 ```
 invoicePrint/
 ├── main.py           # 主程序
+├── build.py          # 跨平台打包脚本
 ├── pyproject.toml    # 项目配置和依赖
 ├── .gitignore        # Git忽略文件
 └── README.md         # 说明文档
