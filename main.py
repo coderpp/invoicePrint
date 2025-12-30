@@ -218,18 +218,20 @@ class InvoiceMerger:
         return merged_page
 
 
-def find_pdf_files(directory: Path) -> List[Path]:
+def find_pdf_files(directory: Path, reverse: bool = False) -> List[Path]:
     """
     查找目录下的所有PDF文件
     
     Args:
         directory: 目录路径
+        reverse: 是否倒序排列
         
     Returns:
         PDF文件路径列表
     """
-    pdf_files = sorted(directory.glob("*.pdf"))
-    pdf_files.extend(sorted(directory.glob("*.PDF")))
+    pdf_files = list(directory.glob("*.pdf"))
+    pdf_files.extend(directory.glob("*.PDF"))
+    pdf_files = sorted(pdf_files, reverse=reverse)
     return pdf_files
 
 
@@ -256,6 +258,11 @@ def main():
         choices=[2, 4, 6, 8],
         help="每页A4纸排列的发票数量（默认: 4，可选: 2, 4, 6, 8）"
     )
+    parser.add_argument(
+        "-r", "--reverse",
+        action="store_true",
+        help="倒序排列文件（默认: 正序）"
+    )
     
     args = parser.parse_args()
     
@@ -270,10 +277,14 @@ def main():
         return 1
     
     # 查找PDF文件
-    pdf_files = find_pdf_files(directory)
+    pdf_files = find_pdf_files(directory, reverse=args.reverse)
     if not pdf_files:
         print(f"错误: 在目录 {directory} 中没有找到PDF文件")
         return 1
+    
+    # 显示排序方式
+    sort_order = "倒序" if args.reverse else "正序"
+    print(f"文件排序: {sort_order}")
     
     # 创建合并器并合并
     try:
