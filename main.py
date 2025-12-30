@@ -229,8 +229,9 @@ def find_pdf_files(directory: Path, reverse: bool = False) -> List[Path]:
     Returns:
         PDF文件路径列表
     """
-    pdf_files = list(directory.glob("*.pdf"))
-    pdf_files.extend(directory.glob("*.PDF"))
+    # 使用 set 去重（Windows 文件系统不区分大小写，*.pdf 和 *.PDF 可能匹配相同文件）
+    pdf_files = set(directory.glob("*.pdf"))
+    pdf_files.update(directory.glob("*.PDF"))
     pdf_files = sorted(pdf_files, reverse=reverse)
     return pdf_files
 
