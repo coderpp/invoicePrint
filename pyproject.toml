@@ -1,0 +1,8 @@
+[project]
+name = "invoiceprint"
+version = "0.1.0"
+description = "PDF发票合并打印工具 - 将多个PDF发票合并并排列在一张A4纸上"
+requires-python = ">=3.12"
+dependencies = [
+    "pypdf>=4.0.0",
+]
